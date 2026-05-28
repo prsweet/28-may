@@ -69,5 +69,5 @@ while (true)
   const data: receiving = JSON.parse(received?.element!);
   console.log(data, "at iterator");
   const sendingData = await processData(data);
-  await sendToRespectingQ(data, sendingData);
+  await sendToRespectingQ(data, sendingData!);
 }
