@@ -1,22 +1,22 @@
 import { createClient } from "redis";
 const receivingClient = await createClient().connect();
 const sendingClient = await createClient().connect();
-import { renderTemplate, TemplateName } from "./template/index";
+import { renderTemplate, type TemplateName } from "./template/index";
 import { prisma } from "./db";
 
 type receiving = {
-  id: number,
-  user: string,
-  template: TemplateName
-  service: "EMAIL",
-  priority: 0 | 1 | 2,
-}
+  id: number;
+  user: string;
+  template: TemplateName;
+  service: "EMAIL";
+  priority: 0 | 1 | 2;
+};
 
 export type sendingData = {
-  to: string,
-  from: string,
-  template: string
-}
+  to: string;
+  from: string;
+  template: string;
+};
 
 const processData = async (data: receiving) => {
   try {
@@ -28,29 +28,32 @@ const processData = async (data: receiving) => {
     if (data.template == "signup-success") {
       templateDetails = {
         username: userDetails.email,
-      }
-    } else if (data.template = "wallet-onramp-success") {
+      };
+    } else if ((data.template = "wallet-onramp-success")) {
       templateDetails = {
         username: userDetails.email,
-        amount: 150
-      }
-    } else if (data.template = "marketing-email") {
+        amount: 150,
+      };
+    } else if ((data.template = "marketing-email")) {
       templateDetails = {
         title: "festival",
         username: userDetails.email,
-        message: "please check it out"
-      }
+        message: "please check it out",
+      };
     }
-    const template = await renderTemplate({ template: data.template, variables: templateDetails!});
+    const template = await renderTemplate({
+      template: data.template,
+      variables: templateDetails!,
+    });
     return {
       to: userDetails.email,
       from: process.env.email,
-      template: template
-    } as sendingData
+      template: template,
+    } as sendingData;
   } catch (e) {
     console.log(e);
   }
-}
+};
 
 const sendToRespectingQ = async (data: receiving, sendingData: sendingData) => {
   try {
@@ -61,10 +64,9 @@ const sendToRespectingQ = async (data: receiving, sendingData: sendingData) => {
   } catch (e) {
     console.log(e);
   }
-}
+};
 
-while (true)
-{
+while (true) {
   const received = await receivingClient.brPop("iterator", 0);
   const data: receiving = JSON.parse(received?.element!);
   console.log(data, "at iterator");
